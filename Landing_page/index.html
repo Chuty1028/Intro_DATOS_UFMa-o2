@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portafolio — Alexander López</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            mono: ['DM Mono', 'monospace'],
+          },
+          colors: {
+            ink: '#0c0c0e',
+            paper: '#f5f2eb',
+            accent: '#e8ff47',
+            muted: '#7a7a7a',
+            card: '#141416',
+            border: '#222226',
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.7s ease forwards',
+            'glow-pulse': 'glowPulse 3s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeUp: {
+              '0%': { opacity: '0', transform: 'translateY(24px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            glowPulse: {
+              '0%, 100%': { boxShadow: '0 0 20px rgba(232,255,71,0.15)' },
+              '50%': { boxShadow: '0 0 40px rgba(232,255,71,0.35)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { background-color: #0c0c0e; color: #f5f2eb; }
+
+    .noise-bg::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(245,242,235,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,242,235,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border: 1px solid #333;
+      border-radius: 999px;
+      color: #7a7a7a;
+    }
+
+    .project-card {
+      background: #141416;
+      border: 1px solid #222226;
+      border-radius: 16px;
+      transition: border-color 0.3s ease, transform 0.3s ease, opacity 0.6s ease;
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    .project-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .project-card:hover {
+      border-color: rgba(232,255,71,0.4);
+      transform: translateY(-4px);
+    }
+    .project-card:hover .card-accent-line {
+      width: 100%;
+    }
+
+    .card-accent-line {
+      height: 2px;
+      background: linear-gradient(90deg, #e8ff47, transparent);
+      width: 0;
+      transition: width 0.4s ease;
+      border-radius: 2px;
+    }
+
+    .hero-number {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(5rem, 15vw, 12rem);
+      line-height: 0.9;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(245,242,235,0.08);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 10px 20px;
+      border: 1px solid #333;
+      border-radius: 999px;
+      color: #f5f2eb;
+      text-decoration: none;
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
+    .link-btn:hover {
+      background: #e8ff47;
+      border-color: #e8ff47;
+      color: #0c0c0e;
+    }
+    .link-btn svg {
+      transition: transform 0.25s ease;
+    }
+    .link-btn:hover svg {
+      transform: translate(3px, -3px);
+    }
+
+    .cursor-dot {
+      width: 8px; height: 8px;
+      background: #e8ff47;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(232,255,71,0.5);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.18s ease, width 0.2s ease, height 0.2s ease;
+    }
+
+    #hero-title .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    #hero-title .char.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body class="noise-bg grid-bg font-display min-h-screen overflow-x-hidden">
+
+  <!-- Custom cursor -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav class="relative z-10 flex items-center justify-between px-8 py-6 max-w-6xl mx-auto">
+    <span class="font-mono text-xs text-muted tracking-widest uppercase">Alexander López</span>
+    <div class="flex items-center gap-6">
+      <a href="https://github.com/AyyCanchito" target="_blank"
+         class="font-mono text-xs text-muted hover:text-paper transition-colors tracking-wide">
+        GitHub ↗
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="relative z-10 px-8 pt-12 pb-24 max-w-6xl mx-auto">
+    <div class="overflow-hidden mb-4">
+      <p class="tag">Portafolio — 2026</p>
+    </div>
+
+    <div class="relative">
+      <div class="hero-number absolute -top-8 -left-4 select-none">01</div>
+      <h1 id="hero-title"
+          class="relative text-[clamp(2rem,4.8vw,4.2rem)] font-extrabold leading-[1.05] tracking-tight mt-8 whitespace-nowrap"
+          aria-label="My GitHub Page">
+      </h1>
+    </div>
+
+    <p class="font-mono text-sm text-muted mt-6 max-w-md leading-relaxed" id="hero-sub" style="opacity:0">
+      Proyectos universitarios, laboratorios de datos<br/>y experimentos de código.
+    </p>
+
+    <div class="mt-10 flex items-center gap-4" id="hero-cta" style="opacity:0">
+      <a href="#projects" class="link-btn">
+        Ver proyectos
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+      </a>
+      <a href="https://github.com/AyyCanchito" target="_blank" class="link-btn">
+        GitHub
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="relative z-10 max-w-6xl mx-auto px-8">
+    <div class="flex items-center gap-4">
+      <div class="h-px flex-1 bg-border"></div>
+      <span class="font-mono text-xs text-muted tracking-widest">LABORATORIOS y proyectos</span>
+      <div class="h-px flex-1 bg-border"></div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="relative z-10 px-8 py-20 max-w-6xl mx-auto">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Card 1: Caso de Estudio -->
+      <div class="project-card p-8 group" data-index="0">
+        <div class="card-accent-line mb-6"></div>
+        <div class="flex items-start justify-between mb-6">
+          <span class="font-mono text-xs text-accent tracking-widest">CASO — 01</span>
+          <span class="tag">Python · Notebook</span>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight mb-3 leading-tight">Caso de Estudio 1<br/>Intro a Datos</h2>
+        <p class="font-mono text-sm text-muted leading-relaxed mb-8">
+          Caso de estudio introductorio al análisis de datos, exploración de datasets y conclusiones estadísticas básicas.
+        </p>
+        <div class="flex items-center gap-3 flex-wrap">
+          <a href="https://colab.research.google.com/github/AyyCanchito/INTRO_DATOS_UFMA-O2/blob/main/Caso_de_Estudio_1_Intro_a_datos.ipynb"
+             target="_blank" class="link-btn colab-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.25 17.292l-4.5-4.364 1.386-1.414 3.114 3.02 6.368-6.42 1.386 1.414-7.754 7.764z"/></svg>
+            Abrir en Colab
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: Laboratorio 2 -->
+      <div class="project-card p-8 group" data-index="1">
+        <div class="card-accent-line mb-6"></div>
+        <div class="flex items-start justify-between mb-6">
+          <span class="font-mono text-xs text-accent tracking-widest">LAB — 02</span>
+          <span class="tag">Python · Notebook</span>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight mb-3 leading-tight">Laboratorio 2</h2>
+        <p class="font-mono text-sm text-muted leading-relaxed mb-8">
+          Análisis exploratorio de datos y profiling con pandas y herramientas de visualización.
+        </p>
+        <div class="flex items-center gap-3 flex-wrap">
+          <a href="https://colab.research.google.com/github/AyyCanchito/INTRO_DATOS_UFMA-O2/blob/main/Laboratorio_2.ipynb"
+             target="_blank" class="link-btn colab-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.25 17.292l-4.5-4.364 1.386-1.414 3.114 3.02 6.368-6.42 1.386 1.414-7.754 7.764z"/></svg>
+            Abrir en Colab
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 3: Lab 1 Intro a Datos -->
+      <div class="project-card p-8 group" data-index="2">
+        <div class="card-accent-line mb-6"></div>
+        <div class="flex items-start justify-between mb-6">
+          <span class="font-mono text-xs text-accent tracking-widest">LAB — 01</span>
+          <span class="tag">Python · Notebook</span>
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight mb-3 leading-tight">Lab 1 — Introducción a Datos</h2>
+        <p class="font-mono text-sm text-muted leading-relaxed mb-8">
+          Introducción a estructuras de datos, limpieza de datasets y primeras visualizaciones con seaborn y matplotlib.
+        </p>
+        <div class="flex items-center gap-3 flex-wrap">
+          <a href="https://colab.research.google.com/github/AyyCanchito/INTRO_DATOS_UFMA-O2/blob/main/Lab1_intro_datos.ipynb"
+             target="_blank" class="link-btn colab-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm-1.25 17.292l-4.5-4.364 1.386-1.414 3.114 3.02 6.368-6.42 1.386 1.414-7.754 7.764z"/></svg>
+            Abrir en Colab
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DIVIDER PDFs -->
+  <div class="relative z-10 max-w-6xl mx-auto px-8 mt-4">
+    <div class="flex items-center gap-4">
+      <div class="h-px flex-1 bg-border"></div>
+      <span class="font-mono text-xs text-muted tracking-widest">PRELABS y TAREAS</span>
+      <div class="h-px flex-1 bg-border"></div>
+    </div>
+  </div>
+
+  <!-- PDF SECTION -->
+  <section class="relative z-10 px-8 py-16 max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Prelabs -->
+      <div class="project-card p-8" data-index="3">
+        <div class="card-accent-line mb-6"></div>
+        <div class="flex items-start justify-between mb-6">
+          <span class="font-mono text-xs text-accent tracking-widest">PRELABS</span>
+          <span class="tag">PDF</span>
+        </div>
+        <h2 class="text-xl font-bold tracking-tight mb-6 leading-tight">Investigación & Prelabs</h2>
+        <div class="flex flex-col gap-3">
+
+          <div class="flex items-center justify-between py-3 border-b border-border">
+            <div class="flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8ff47" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="font-mono text-xs text-paper">Investigación Prelab</span>
+            </div>
+            <a href="../Copia de Prelabs/Investigación Prelab.pdf" download class="link-btn py-2 px-4 text-xs">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar
+            </a>
+          </div>
+
+          <div class="flex items-center justify-between py-3 border-b border-border">
+            <div class="flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8ff47" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="font-mono text-xs text-paper">Prelab 1</span>
+            </div>
+            <a href="../Copia de Prelabs/Prelab 1.pdf" download class="link-btn py-2 px-4 text-xs">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar
+            </a>
+          </div>
+
+          <div class="flex items-center justify-between py-3">
+            <div class="flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8ff47" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="font-mono text-xs text-paper">Prelab 2 — Datos</span>
+            </div>
+            <a href="../Copia de Prelabs/Prelab 2_datos.pdf" download class="link-btn py-2 px-4 text-xs">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tareas -->
+      <div class="project-card p-8" data-index="4">
+        <div class="card-accent-line mb-6"></div>
+        <div class="flex items-start justify-between mb-6">
+          <span class="font-mono text-xs text-accent tracking-widest">TAREAS</span>
+          <span class="tag">PDF</span>
+        </div>
+        <h2 class="text-xl font-bold tracking-tight mb-6 leading-tight">Tareas del Curso</h2>
+        <div class="flex flex-col gap-3">
+
+          <div class="flex items-center justify-between py-3 border-b border-border">
+            <div class="flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8ff47" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="font-mono text-xs text-paper">Fiebre del Oro — Tarea 1</span>
+            </div>
+            <a href="../Copia de Tareas/Fiebre_del_oro_tarea_1.pdf" download class="link-btn py-2 px-4 text-xs">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar
+            </a>
+          </div>
+
+          <div class="flex items-center justify-between py-3 border-b border-border">
+            <div class="flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8ff47" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="font-mono text-xs text-paper">Pipeline — Tarea 2</span>
+            </div>
+            <a href="../Copia de Tareas/Pipeline_tarea_2.pdf" download class="link-btn py-2 px-4 text-xs">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar
+            </a>
+          </div>
+
+          <div class="flex items-center justify-between py-3">
+            <div class="flex items-center gap-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8ff47" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="font-mono text-xs text-paper">Tarea 3 — Investigación</span>
+            </div>
+            <a href="../Copia de Tareas/Tarea_3_Investigacion.pdf" download class="link-btn py-2 px-4 text-xs">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Descargar
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 max-w-6xl mx-auto px-8 py-10 border-t border-border flex items-center justify-between">
+    <span class="font-mono text-xs text-muted">© 2026 Alexander López</span>
+    <a href="https://github.com/AyyCanchito" target="_blank"
+       class="font-mono text-xs text-muted hover:text-accent transition-colors">
+      AyyCanchito ↗
+    </a>
+  </footer>
+
+  <script src="animations.js"></script>
+</body>
+</html>
